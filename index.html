@@ -1,22 +1,56 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>My first Vue app</title>
+    <title>To-Do List</title>
     <script src="https://unpkg.com/vue"></script>
   </head>
   
   <body>
     <div id="app">
-      {{ message }}
+      <h3>To-Do List</h3>
+      <p>Filter: <input v-model="filterItems"></p>
+      <ol>
+      <li v-for="todo in todos">
+        {{ todo.text }}
+      </li>
+    </ol>
+    <p><input v-model="newItem"><button v-on:click="addItem">Add Item</button></p>
+    <p>Total Items: {{ itemTotal }}</p>
+    <p>Filtered Items: {{ filteredTotal }}</p>
     </div>
 
     <script>
       var app = new Vue({
-        el: "#app",
-        data: {
-          message: "Hello Vue!"
-        }
-      });
+  el: '#app',
+  data: {
+    todos: [
+      { text: 'Learn JavaScript' },
+      { text: 'Learn Vue' },
+      { text: 'Build something awesome' }
+    ],
+    newItem: ''
+  },
+  computed: {
+    itemTotal: function () {
+      return this.todos.length
+    },
+    filteredTotal: function () {
+      return this.todos.length
+    }
+  },
+  watch: {
+    filterItems: function () {
+
+    }
+  },
+  methods: {
+    addItem: function () {
+      if(this.newItem != '')
+        app.todos.push({ text: this.newItem })
+        this.newItem = ''
+    }
+  }
+})
     </script>
   </body>
 </html>
