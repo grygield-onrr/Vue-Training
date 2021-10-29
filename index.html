@@ -4,53 +4,68 @@
     <title>To-Do List</title>
     <script src="https://unpkg.com/vue"></script>
   </head>
-  
+
   <body>
     <div id="app">
       <h3>To-Do List</h3>
-      <p>Filter: <input v-model="filterItems"></p>
+      <p>Filter: <input v-model="filterItems" /></p>
       <ol>
-      <li v-for="todo in todos">
-        {{ todo.text }}
-      </li>
-    </ol>
-    <p><input v-model="newItem"><button v-on:click="addItem">Add Item</button></p>
-    <p>Total Items: {{ itemTotal }}</p>
-    <p>Filtered Items: {{ filteredTotal }}</p>
+        <li v-for="todo in todos">{{ todo.text }}</li>
+      </ol>
+      <p>
+        <input v-model="newItem" /><button v-on:click="addItem">
+          Add Item
+        </button>
+      </p>
+      <p>Total Items: {{ itemTotal }}</p>
+      <p>Filtered Items: {{ filteredTotal }}</p>
     </div>
 
     <script>
       var app = new Vue({
-  el: '#app',
-  data: {
-    todos: [
-      { text: 'Learn JavaScript' },
-      { text: 'Learn Vue' },
-      { text: 'Build something awesome' }
-    ],
-    newItem: ''
-  },
-  computed: {
-    itemTotal: function () {
-      return this.todos.length
-    },
-    filteredTotal: function () {
-      return this.todos.length
-    }
-  },
-  watch: {
-    filterItems: function () {
-
-    }
-  },
-  methods: {
-    addItem: function () {
-      if(this.newItem != '')
-        app.todos.push({ text: this.newItem })
-        this.newItem = ''
-    }
-  }
-})
+        el: "#app",
+        data: {
+          todos: [
+            { text: "Learn JavaScript" },
+            { text: "Learn Vue" },
+            { text: "Build something awesome" },
+          ],
+          newItem: "",
+          filterItems: "",
+        },
+        computed: {
+          itemTotal: function () {
+            return this.todos.length
+          },
+          filteredTotal: function () {
+            if (this.filterItems !== "")
+              return this.todos.filter(f =>
+                f.text.toLower.includes(this.filterItems.toLower)
+              ).length
+          },
+        },
+        watch: {
+          filterItems: function () {
+            if (this.filterItems !== "")
+              var filtered = this.todos.filter(
+                f => f.text.toLower.includes(this.filterItems.toLower)
+                // TODO: Map this to list
+              )
+          },
+          newItem: function () {
+            if (this.newItem.toLower === "clear") this.clearAllItems
+          },
+        },
+        methods: {
+          addItem: function () {
+            if (this.newItem != "") app.todos.push({ text: this.newItem })
+            this.newItem = ""
+          },
+          clearAllItems: function () {
+            while (this.todos.length > 0) this.todos.pop
+          },
+        },
+      })
     </script>
   </body>
 </html>
