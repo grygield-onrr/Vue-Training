@@ -8,17 +8,45 @@
   <body>
     <div id="app">
       <h3>To-Do List</h3>
-      <p>Filter: <input v-bind="itemFilter" /></p>
+      <p>Filter: <input v-model="itemFilter" /></p>
       <ol>
-        <li v-for="item in filteredItems">
-          <button v-on:click="editItem(item)">Edit</button
-          ><button v-on:click="deleteItem(item)">Remove</button>
-          {{ item.text }}
+        <li v-for="(item, id) in filteredItems">
+          <button
+            v-if="!item.edit"
+            v-on:click="item.edit = true, preEdit = item.text"
+          >
+            Edit</button
+          ><button v-if="!item.edit" v-on:click="deleteItem(item)">
+            Remove
+          </button>
+          <label v-if="!item.edit">{{ item.text }}</label>
+          <button
+            v-if="item.edit"
+            v-on:click="editItem(postEdit, id), item.edit = false"
+          >
+            Save
+          </button>
+          <button
+            v-if="item.edit"
+            v-on:click="item.edit = false, item.text = preEdit"
+          >
+            Reset
+          </button>
+          <input
+            v-if="item.edit"
+            v-model="item.text"
+            v-focus
+            v-on:blur="postEdit = item.text, item.text = preEdit, item.edit = false"
+            v-on:keyup.enter="
+          editItem(item.text, id), item.edit = false"
+          />
         </li>
       </ol>
       <p>
         {{ clearLabel }}<br />
-        <input v-model="newItem" /><button v-on:click="addItem">
+        <input v-model="newItem" v-on:keyup.enter="addItem" /><button
+          v-on:click="addItem"
+        >
           Add Item
         </button>
       </p>
@@ -31,11 +59,13 @@
         el: "#app",
         data: {
           todos: [
-            { text: "Learn JavaScript" },
-            { text: "Learn Vue" },
-            { text: "Build something awesome" },
+            { text: "Learn JavaScript", id: 0, edit: false },
+            { text: "Learn Vue", id: 1, edit: false },
+            { text: "Build something awesome", id: 2, edit: false },
           ],
           newItem: "",
+          preEdit: "",
+          postEdit: "",
           itemFilter: "",
           clearLabel:
             'Use the box below to add new list items, or type "Clear" to clear out the current list.',
@@ -71,14 +101,32 @@
         },
         methods: {
           addItem: function () {
-            if (this.newItem != "") app.todos.push({ text: this.newItem })
+            if (this.newItem != "")
+              this.todos.push({
+                text: this.newItem,
+                id: this.todos.length,
+                edit: false,
+              })
             this.newItem = ""
           },
-          editItem: function (item) {
-            // TODO: Include edit
+          editItem: function (item, index) {
+            this.todos.splice(
+              index,
+              1,
+              (item, { text: item, id: index, edit: false })
+            )
+            this.preEdit = ""
+            this.postEdit = ""
           },
           deleteItem: function (item) {
             this.todos.splice(this.todos.indexOf(item), 1)
+          },
+        },
+        directives: {
+          focus: {
+            inserted: function (el) {
+              el.focus()
+            },
           },
         },
       })
