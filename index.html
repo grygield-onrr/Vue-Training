@@ -8,11 +8,16 @@
   <body>
     <div id="app">
       <h3>To-Do List</h3>
-      <p>Filter: <input v-model="filterItems" /></p>
+      <p>Filter: <input v-bind="itemFilter" /></p>
       <ol>
-        <li v-for="todo in todos">{{ todo.text }}</li>
+        <li v-for="item in filteredItems">
+          <button v-on:click="editItem(item)">Edit</button
+          ><button v-on:click="deleteItem(item)">Remove</button>
+          {{ item.text }}
+        </li>
       </ol>
       <p>
+        {{ clearLabel }}<br />
         <input v-model="newItem" /><button v-on:click="addItem">
           Add Item
         </button>
@@ -31,29 +36,37 @@
             { text: "Build something awesome" },
           ],
           newItem: "",
-          filterItems: "",
+          itemFilter: "",
+          clearLabel:
+            'Use the box below to add new list items, or type "Clear" to clear out the current list.',
         },
         computed: {
+          filteredItems: function () {
+            if (this.itemFilter !== "") {
+              return this.todos.filter(f =>
+                f.text.toLowerCase().includes(this.itemFilter.toLowerCase())
+              )
+            } else return this.todos
+          },
           itemTotal: function () {
             return this.todos.length
           },
           filteredTotal: function () {
-            if (this.filterItems !== "")
-              return this.todos.filter(f =>
-                f.text.toLower.includes(this.filterItems.toLower)
-              ).length
+            return this.filteredItems.length
           },
         },
         watch: {
-          filterItems: function () {
-            if (this.filterItems !== "")
-              var filtered = this.todos.filter(
-                f => f.text.toLower.includes(this.filterItems.toLower)
-                // TODO: Map this to list
-              )
-          },
           newItem: function () {
-            if (this.newItem.toLower === "clear") this.clearAllItems
+            if (this.newItem.toLowerCase() === "clear") {
+              this.todos.splice(0, this.todos.length)
+              this.newItem = ""
+              this.clearLabel = "To-do list cleared!"
+            }
+          },
+          todos: function () {
+            if (this.todos.length > 0)
+              this.clearLabel =
+                'Use the box below to add new list items, or type "Clear" to clear out the current list.'
           },
         },
         methods: {
@@ -61,8 +74,11 @@
             if (this.newItem != "") app.todos.push({ text: this.newItem })
             this.newItem = ""
           },
-          clearAllItems: function () {
-            while (this.todos.length > 0) this.todos.pop
+          editItem: function (item) {
+            // TODO: Include edit
+          },
+          deleteItem: function (item) {
+            this.todos.splice(this.todos.indexOf(item), 1)
           },
         },
       })
