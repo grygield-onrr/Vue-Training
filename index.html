@@ -11,34 +11,22 @@
       <p>Filter: <input v-model="itemFilter" /></p>
       <ol>
         <li v-for="(item, id) in filteredItems">
-          <button
-            v-if="!item.edit"
-            v-on:click="item.edit = true, preEdit = item.text"
-          >
+          <button v-if="!item.edit" v-on:click="setItemEditable(item)">
             Edit</button
           ><button v-if="!item.edit" v-on:click="deleteItem(item)">
             Remove
           </button>
           <label v-if="!item.edit">{{ item.text }}</label>
-          <button
-            v-if="item.edit"
-            v-on:click="editItem(postEdit, id), item.edit = false"
-          >
+          <button v-if="item.edit" v-on:click="editItem(postEdit, id)">
             Save
-          </button>
-          <button
-            v-if="item.edit"
-            v-on:click="item.edit = false, item.text = preEdit"
-          >
-            Reset
           </button>
           <input
             v-if="item.edit"
             v-model="item.text"
             v-focus
-            v-on:blur="postEdit = item.text, item.text = preEdit, item.edit = false"
+            v-on:blur="resetEdit(item)"
             v-on:keyup.enter="
-          editItem(item.text, id), item.edit = false"
+          editItem(item.text, id)"
           />
         </li>
       </ol>
@@ -109,14 +97,22 @@
               })
             this.newItem = ""
           },
+          setItemEditable: function (item) {
+            item.edit = true
+            this.preEdit = item.text
+          },
           editItem: function (item, index) {
+            item.edit = false
             this.todos.splice(
               index,
               1,
               (item, { text: item, id: index, edit: false })
             )
-            this.preEdit = ""
-            this.postEdit = ""
+          },
+          resetEdit: function (item) {
+            this.postEdit = item.text
+            item.text = this.preEdit
+            item.edit = false
           },
           deleteItem: function (item) {
             this.todos.splice(this.todos.indexOf(item), 1)
